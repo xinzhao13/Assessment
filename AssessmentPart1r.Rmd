@@ -21,12 +21,12 @@ library(ggplot2)
 library(ggmap)
 
 ###To import and tidy data
-setwd("D:/Xin/MSc Smart Cities and Urban Analytics/Modules/CASA0005 GISS/Assessment Part 1")
+setwd("D:/Xin/MSc/Modules/CASA0005_GISS/Assessment/Assessment Part 1")
 StnUsg17 <- read.csv("2017_ORR_StnUsage.csv",encoding="UTF-8")
-StnUsg17
+head(StnUsg17)
 colnames(StnUsg17)[1] <- c('NLC')
 colnames(StnUsg17)[c(6,7)] <- c('Easting','Northing')
-colnames(StnUsg17)[9] <- 'StnUsg17
+colnames(StnUsg17)[9] <- 'StnUsg17'
 
 ###To transform Easting Northing into WSG84 coordinates
 ukgrid <- "+init=epsg:27700"
@@ -48,11 +48,12 @@ StnUsg17$StnUsg17 <- StnUsg17$StnUsg17 / 1000000
 
 #To prepare base map
 LondonLocation <- c(-0.076132, 51.508530)
+register_google(key="AIzaSyAAmTJCvDq4eDeTHGNJhgP6uY1YNVhLEV8")
 London_map <- get_map(location=LondonLocation, source="google",maptype="road",zoom=11)
 ggmap(London_map)
 
 #To plot 2016/17 station entry and exit data on the basemap
-ggmap(London_map) + geom_point(aes(x = Long, y = Lat, size=sqrt(StnUsg17)), data = StnUsg17, alpha = 0.8, color="red")+ scale_size(range=c(0.5,8))
+ggmap(London_map) + geom_point(aes(x = Long, y = Lat, size=sqrt(StnUsg17)), data = StnUsg17, alpha = 0.5, color="red")+ scale_size(range=c(0.5,8))
 
 ```
 
