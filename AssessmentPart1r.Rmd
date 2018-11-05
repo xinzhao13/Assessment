@@ -1,0 +1,67 @@
+map---
+title: "AssessmentPart1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+###To initialise libraries
+library(rgdal)
+library(stringr)
+library(ggplot2)
+library(ggmap)
+
+###To import and tidy data
+setwd("D:/Xin/MSc Smart Cities and Urban Analytics/Modules/CASA0005 GISS/Assessment Part 1")
+StnUsg17 <- read.csv("2017_ORR_StnUsage.csv",encoding="UTF-8")
+StnUsg17
+colnames(StnUsg17)[1] <- c('NLC')
+colnames(StnUsg17)[c(6,7)] <- c('Easting','Northing')
+colnames(StnUsg17)[9] <- 'StnUsg17
+
+###To transform Easting Northing into WSG84 coordinates
+ukgrid <- "+init=epsg:27700"
+latlong <- "+init=epsg:4326"
+coords <- cbind(Easting = as.numeric(as.character(StnUsg17$Easting)),
+                Northing = as.numeric(as.character(StnUsg17$Northing)))
+StnUsg17_SP <- SpatialPointsDataFrame(coords,
+                                 data = StnUsg17,
+                                 proj4string = CRS("+init=epsg:27700"))
+StnUsg17_SP_LL <- spTransform(StnUsg17_SP, CRS(latlong))
+StnUsg17_SP_LL
+StnUsg17_SP_LL@data$Long <- coordinates(StnUsg17_SP_LL)[,1]
+StnUsg17_SP_LL@data$Lat <- coordinates(StnUsg17_SP_LL)[,2]
+
+#To tidy dataframe
+StnUsg17 <- as.data.frame(StnUsg17_SP_LL)
+StnUsg17$StnUsg17 <- as.numeric(as.character(StnUsg17$StnUsg17))
+StnUsg17$StnUsg17 <- StnUsg17$StnUsg17 / 1000000 
+
+#To prepare base map
+LondonLocation <- c(-0.076132, 51.508530)
+London_map <- get_map(location=LondonLocation, source="google",maptype="road",zoom=11)
+ggmap(London_map)
+
+#To plot 2016/17 station entry and exit data on the basemap
+ggmap(London_map) + geom_point(aes(x = Long, y = Lat, size=sqrt(StnUsg17)), data = StnUsg17, alpha = 0.8, color="red")+ scale_size(range=c(0.5,8))
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+knitr::include_graphics("D:/Xin/MSc%20Smart%20Cities%20and%20Urban%20Analytics/Modules/CASA0005%20GISS/Assessment%20Part%201/AssessmentPart1qgis.jpg")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
